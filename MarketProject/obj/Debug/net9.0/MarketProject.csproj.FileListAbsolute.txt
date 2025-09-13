@@ -12,3 +12,4 @@
 /Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.pdb
 /Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.genruntimeconfig.cache
 /Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/ref/MarketProject.dll
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.sourcelink.json
