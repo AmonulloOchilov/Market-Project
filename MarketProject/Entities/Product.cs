@@ -7,6 +7,6 @@ public class Product
     public double Quantity { get; set; }
     public DateTime ExpireDate { get; set; }
     public decimal PricePerUnit { get; set; }
-    public long CategoryID { get; set; }
+    public long CategoryID { get; set; } //P -> C
     
 }

@@ -2,20 +2,20 @@ namespace MarketProject.Entities;
 
 public class Order
 {
-    public Order()
-    {
-        OrderItems = new List<OrderItem>();
-    }
     public long Id { get; set; }
-    public long CustomerId { get; set; }
+    public long CustomerId { get; set; } // O -> C
     public DateTime OrderDate { get; set; }
-
-    public decimal TotalAmount
+    
+    public List<OrderItem> OrderItems { get; set; } // O -> OI
+    
+    public Order() 
+    { 
+        OrderItems = new List<OrderItem>(); //Like OrderItems are never null
+    }
+    public decimal TotalAmount //Total cost of the specific order
     {
         get => OrderItems.Sum(item => item.Amount);
     }
-    public List<OrderItem> OrderItems { get; set; }
-
     public void AddItem(Product product, int quantity)
     {
         decimal amount = product.PricePerUnit * quantity;
@@ -25,6 +25,15 @@ public class Order
             Quantity = quantity,
             Amount = amount
         });
-        product.Quantity = product.Quantity - quantity;
+        
+        
+        if (product.Quantity - quantity > 0)  
+        {
+            product.Quantity -= quantity;
+        }
+        else if (product.Quantity - quantity <= 0)
+        {
+            Console.WriteLine($"The following product has finished: {product.Name}");
+        }
     }
 }
