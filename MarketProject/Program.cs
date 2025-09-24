@@ -3,6 +3,8 @@ using MarketProject.Services;
 
 ProductService productService = new ProductService();
 CustomerService customerService = new CustomerService();
+
+OrderService orderService = new OrderService(productService, customerService);
 Console.WriteLine("Welcome to Market");
 
 void ShowMenu()
@@ -36,6 +38,12 @@ while (true)
             break;
         case "4":
             customerService.ViewCustomers();
+            break;
+        case "5":
+            orderService.CreateOrder();
+            break;
+        case "6":
+            orderService.ViewOrders();
             break;
         case "7":
             Environment.Exit(0);

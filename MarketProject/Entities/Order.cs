@@ -16,24 +16,4 @@ public class Order
     {
         get => OrderItems.Sum(item => item.Amount);
     }
-    public void AddItem(Product product, int quantity)
-    {
-        decimal amount = product.PricePerUnit * quantity;
-        OrderItems.Add(new OrderItem
-        {
-            ProductId = product.Id,
-            Quantity = quantity,
-            Amount = amount
-        });
-        
-        
-        if (product.Quantity - quantity > 0)  
-        {
-            product.Quantity -= quantity;
-        }
-        else if (product.Quantity - quantity <= 0)
-        {
-            Console.WriteLine($"The following product has finished: {product.Name}");
-        }
-    }
 }

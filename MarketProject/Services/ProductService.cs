@@ -1,8 +1,10 @@
+using MarketProject.Entities;
+
 namespace MarketProject.Services;
 
 public class ProductService
 {
-    private readonly string filePath;
+    public readonly string filePath;
 
     public ProductService()
     {
@@ -17,7 +19,15 @@ public class ProductService
 
     public void AddProduct(long id, string name, decimal price, double quantity, long categoryId)
     {
-        string line = $"{id}|{name}|{price}|{quantity}|{categoryId}";
+        var product = new Product()
+        {
+            Id = id,
+            Name = name,
+            PricePerUnit = price,
+            Quantity = quantity,
+            CategoryID = categoryId
+        };
+        string line = $"{product.Id}|{product.Name}|{product.PricePerUnit}|{product.Quantity}|{product.CategoryID}";
         File.AppendAllText(filePath, line + Environment.NewLine);
         Console.WriteLine("Product saved successfully!");
     }

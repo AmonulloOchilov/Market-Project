@@ -2,7 +2,7 @@ namespace MarketProject.Services;
 
 public class CustomerService
 {
-    private readonly string filePath;
+    public readonly string filePath;
     public CustomerService()
     {
         string dataFolder =
