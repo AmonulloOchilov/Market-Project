@@ -1,0 +1,20 @@
+=== RECEIPT ===
+Order ID: 1
+Customer: 1
+Date: 10/5/2025 3:04:51 PM
+Items:
+Apple x2 = 6
+Total: 6
+Payment: 10
+Change: 4
+----------------------------
+=== RECEIPT ===
+Order ID: 2
+Customer: 1
+Date: 10/5/2025 3:06:49 PM
+Items:
+Milk x1 = 2
+Total: 2
+Payment: 3
+Change: 1
+----------------------------

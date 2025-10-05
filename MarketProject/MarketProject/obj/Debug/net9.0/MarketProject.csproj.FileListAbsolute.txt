@@ -1,0 +1,15 @@
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/bin/Debug/net9.0/MarketProject
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/bin/Debug/net9.0/MarketProject.deps.json
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/bin/Debug/net9.0/MarketProject.runtimeconfig.json
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/bin/Debug/net9.0/MarketProject.dll
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/bin/Debug/net9.0/MarketProject.pdb
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.GeneratedMSBuildEditorConfig.editorconfig
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.AssemblyInfoInputs.cache
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.AssemblyInfo.cs
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.csproj.CoreCompileInputs.cache
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.dll
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/refint/MarketProject.dll
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.pdb
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.genruntimeconfig.cache
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/ref/MarketProject.dll
+/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/obj/Debug/net9.0/MarketProject.sourcelink.json
