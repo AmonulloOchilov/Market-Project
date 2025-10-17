@@ -137,7 +137,7 @@ void ReportsMenu()
     Console.WriteLine("3. Best selling products");
     Console.WriteLine("4. Receipts");
     Console.WriteLine("5. Back to Main Menu");
-    Console.WriteLine("Select an option (1-5): ");
+    Console.Write("Select an option (1-5): ");
     string? choice = Console.ReadLine();
     switch (choice)
     {
