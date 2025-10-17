@@ -18,3 +18,33 @@ Total: 2
 Payment: 3
 Change: 1
 ----------------------------
+=== RECEIPT ===
+Order ID: 3
+Customer: 1
+Date: 10/11/2025 3:54:39 PM
+Items:
+Milk x11 = 22
+Total: 22
+Payment: 25
+Change: 3
+----------------------------
+=== RECEIPT ===
+Order ID: 4
+Customer: 1
+Date: 10/17/2025 2:40:22 PM
+Items:
+Apple q: 23 = 69
+Apple q: 3 = 9
+Total: 78
+Payment: 80
+Change: 2
+----------------------------
+=== RECEIPT ===
+Order ID: 5
+Customer: 1
+Date: 10/17/2025 2:49:46 PM
+Items:
+Total: 0
+Payment: 0
+Change: 0
+----------------------------

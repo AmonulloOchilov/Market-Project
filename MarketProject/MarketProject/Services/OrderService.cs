@@ -8,7 +8,7 @@ public class OrderService
     private readonly string filePath;
     private readonly ProductService productService;
     private readonly CustomerService customerService;
-    private string receiptFilePath;
+    private string? receiptFilePath;
     
 
     public OrderService(ProductService productService, CustomerService customerService)
@@ -31,7 +31,6 @@ public class OrderService
         long customerId = long.Parse(Console.ReadLine()!);
 
         string[] customerLines = File.ReadAllLines(customerService.filePath);
-
         bool customerExists = customerLines.Any(line =>
         {
             string[] parts = line.Split('|');
@@ -49,67 +48,74 @@ public class OrderService
             CustomerId = customerId,
             OrderDate = DateTime.Now
         };
+        var products = productService.GetAllProducts();
+
         while (true)
         {
             productService.ViewProducts();
-            Console.Write("Enter Product ID to add or Press 0 to finish: ");
-            long productId = long.Parse(Console.ReadLine()!);
+            Console.Write("Enter Product ID to add or press 0 to finish: ");
+            long productId = long.Parse(Console.ReadLine());
             if (productId == 0)
             {
                 break;
             }
 
-            string[] productLines = File.ReadAllLines(productService.filePath);
-            string? productLine = productLines.FirstOrDefault(line =>
+            var product = products.FirstOrDefault(p => p.Id == productId);
+            if (product == null)
             {
-                string[] parts = line.Split('|');
-                return long.Parse(parts[0]) == productId;
-            });
-            if (productLine == null)
-            {
-                Console.WriteLine("Product not found, try again");
+                Console.WriteLine("Product Not found try again");
                 continue;
             }
+
             Console.Write("Enter Quantity: ");
             double quantity = double.Parse(Console.ReadLine());
-            string[] parts = productLine.Split('|');
-            decimal price = decimal.Parse(parts[2]);
-            double available = double.Parse(parts[3]);
-            if (quantity>available)
+            if (quantity>product.Quantity)
             {
-                Console.WriteLine("Not enough stock, try again");
+                Console.WriteLine($"Not enough stock. Only {product.Quantity} left.");
                 continue;
             }
+
+            product.Quantity -= quantity;
 
             OrderItem item = new OrderItem()
             {
-                Id = DateAndTime.Now.Ticks,
+                Id = DateTime.Now.Ticks,
                 OrderId = order.Id,
                 ProductId = productId,
                 Quantity = quantity,
-                Amount = price * (decimal)quantity
+                Amount = product.PricePerUnit * (decimal)quantity
             };
             order.OrderItems.Add(item);
-            Console.WriteLine("Product added");
+            Console.WriteLine($"{product.Name} added to order (Reserved: {quantity})");
         }
-        Console.WriteLine($"Order Total: {order.TotalAmount}");
-
+        
+        Console.WriteLine($"\nOrder Total: {order.TotalAmount}");
+        Console.WriteLine("Confirm Order? Yes/No");
+        string confirm = Console.ReadLine();
+        if (confirm == "No")
+        {
+            Console.WriteLine("Order canceled");
+            return;
+        }
+        
         Console.Write("Enter Payment: ");
-        order.Payment = decimal.Parse(Console.ReadLine());
-        if (order.Payment < order.TotalAmount) 
+        decimal payment = decimal.Parse(Console.ReadLine());
+        if (payment < order.TotalAmount) 
         {
             Console.WriteLine("Payment not enough, order cancelled");
             return;
         }
+
+        order.Payment = payment;
         Console.WriteLine($"Change = {order.Change}");
         
-        //Save is left
         SaveOrder(order);
-        UpdateStock(order);
+        productService.SaveAllProducts(products);
         GenerateReceipt(order);
+        Console.WriteLine("Order confirmed and stock updated\n");
     }
 
-    public void SaveOrder(Order order)
+    private void SaveOrder(Order order)
     {
         var itemsText = string.Join(";", order.OrderItems.Select(i => $"{i.ProductId}:{i.Quantity}:{i.Amount}"));
         string line =
@@ -118,7 +124,7 @@ public class OrderService
         Console.WriteLine("Order saved");
     }
 
-    public void UpdateStock(Order order)
+    private void UpdateStock(Order order)
     {
         var productLines = File.ReadAllLines(productService.filePath).ToList();
         for (int i = 0; i < productLines.Count; i++)
@@ -218,10 +224,13 @@ public class OrderService
         var lines = File.ReadAllLines(filePath);
         foreach (var line in lines)
         {
-            var parts = line.Split('|');
-            if (parts.Length < 7) continue;
+            string[] parts = line.Split('|');
+            if (parts.Length < 7)
+            {
+                continue;
+            }
 
-            var items = parts[6].Split(';');
+            string[] items = parts[6].Split(';');
             foreach (var item in items)
             {
                 var itemParts = item.Split(':');
@@ -231,9 +240,13 @@ public class OrderService
                 int quantity = int.Parse(itemParts[1]);
 
                 if (productSales.ContainsKey(productId))
+                {
                     productSales[productId] += quantity;
+                }
                 else
+                {
                     productSales[productId] = quantity;
+                }
             }
         }
 
@@ -242,11 +255,20 @@ public class OrderService
         foreach (var kv in productSales.OrderByDescending(k => k.Value))
         {
             var product = products.FirstOrDefault(p => p.Id == kv.Key);
-            string name = product != null ? product.Name : $"Product {kv.Key}";
+            string name;
+            if (product != null)
+            {
+                name = product.Name;
+            }
+            else
+            {
+                name = $"Product {kv.Key}";
+            }
             Console.WriteLine($"{name} - {kv.Value} sold");
         }
     }
-    public void GenerateReceipt(Order order)
+
+    private void GenerateReceipt(Order order)
     {
         string receiptFile = "/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/Data/receipts.txt";
         Console.WriteLine("----------------------------");
@@ -264,7 +286,7 @@ public class OrderService
                 .Split('|');
 
             string productName = productLine[1];
-            receiptText += $"{productName} x{item.Quantity} = {item.Amount}\n";
+            receiptText += $"{productName} q: {item.Quantity} = {item.Amount}\n";
         }
 
         receiptText += $"Total: {order.TotalAmount}\n";

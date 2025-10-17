@@ -170,7 +170,10 @@ public class ProductService
     public List<Product> GetAllProducts()
     {
         var products = new List<Product>();
-        if (!File.Exists(filePath)) return products;
+        if (!File.Exists(filePath))
+        {
+            return products;
+        }
 
         var lines = File.ReadAllLines(filePath);
         foreach (var line in lines)
@@ -189,6 +192,12 @@ public class ProductService
             }
         }
         return products;
+    }
+
+    public void SaveAllProducts(List<Product> products)
+    {
+        var lines = products.Select(p => $"{p.Id}|{p.Name}|{p.PricePerUnit}|{p.Quantity}");
+        File.WriteAllLines(filePath,lines);
     }
 
 }
