@@ -323,4 +323,62 @@ public class OrderService
             
         }
     }
+
+    public void EditOrCancelOrder()
+    {
+        List<string> lines = File.ReadAllLines(filePath).ToList();
+        Console.Write("Enter Order ID to Edit or Cancel: ");
+        long orderId = long.Parse(Console.ReadLine());
+        var orderLine = lines.FirstOrDefault(l => long.Parse(l.Split('|')[0]) == orderId);
+        if (orderLine == null)
+        {
+            Console.WriteLine("Order not found");
+            return;
+        }
+
+        Console.Write($"Do u want to Edit or Cancel this order?(Edit/Cancel): ");
+        string choice = Console.ReadLine()!;
+        if (choice == "Cancel")
+        {
+            string[] items = orderLine.Split('|')[6].Split(';');
+            var products = productService.GetAllProducts();
+            foreach (var item in items)
+            {
+                string[] parts = item.Split(':');
+                long productId = long.Parse(parts[0]);
+                double quantity = double.Parse(parts[1]);
+                var product = products.First(p => p.Id == productId);
+                product.Quantity += quantity;
+            }
+            productService.SaveAllProducts(products);
+            lines.Remove(orderLine);
+            File.WriteAllLines(filePath, lines);
+            Console.WriteLine("Order Canceled");
+            
+        }
+        else if (choice == "Edit")
+        {
+            Console.WriteLine("Canceling the old order to restore the stock");
+            string[] items = orderLine.Split('|')[6].Split(';');
+            var products = productService.GetAllProducts();
+            foreach (var item in items)
+            {
+                var parts = item.Split(':');
+                long productId = long.Parse(parts[0]);
+                double quantity = double.Parse(parts[1]);
+                var product = products.First(p => p.Id == productId);
+                product.Quantity += quantity;
+            }
+            productService.SaveAllProducts(products);
+            lines.Remove(orderLine);
+            File.WriteAllLines(filePath, lines);
+
+            Console.WriteLine("Old order canceled. Now create the new order:");
+            CreateOrder();
+        }
+        else
+        {
+            Console.WriteLine("Invalid Choice");
+        }
+    }
 }

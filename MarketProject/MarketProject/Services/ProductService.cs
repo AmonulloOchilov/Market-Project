@@ -196,7 +196,7 @@ public class ProductService
 
     public void SaveAllProducts(List<Product> products)
     {
-        var lines = products.Select(p => $"{p.Id}|{p.Name}|{p.PricePerUnit}|{p.Quantity}");
+        var lines = products.Select(p => $"{p.Id}|{p.Name}|{p.PricePerUnit}|{p.Quantity}|{p.CategoryID}");
         File.WriteAllLines(filePath,lines);
     }
 
