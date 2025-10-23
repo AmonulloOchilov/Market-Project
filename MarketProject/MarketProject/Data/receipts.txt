@@ -8,3 +8,23 @@ Total: 80
 Payment: 85
 Change: 5
 ----------------------------
+=== RECEIPT ===
+Order ID: 1
+Customer: 1
+Date: 10/24/2025 12:42:01 AM
+Items:
+Apple q: 10 = 40
+Total: 40
+Payment: 40
+Change: 0
+----------------------------
+=== RECEIPT ===
+Order ID: 2
+Customer: 1
+Date: 10/24/2025 12:54:11 AM
+Items:
+Apple q: 1 = 4
+Total: 4
+Payment: 5
+Change: 1
+----------------------------

@@ -29,7 +29,17 @@ public class OrderService
         Console.WriteLine("Create a new order");
         Console.Write("Enter Customer ID: ");
         long customerId = long.Parse(Console.ReadLine()!);
-
+        Order order = new Order
+        {
+            Id = File.Exists(filePath) ? File.ReadAllLines(filePath).Length + 1 : 1,
+            CustomerId = customerId,
+            OrderDate = DateTime.Now,
+            Status = "Pending"
+        };
+        
+        Console.WriteLine("Order Status: " + order.Status);
+        
+        
         string[] customerLines = File.ReadAllLines(customerService.filePath);
         bool customerExists = customerLines.Any(line =>
         {
@@ -42,13 +52,7 @@ public class OrderService
             return;
         }
 
-        Order order = new Order
-        {
-            Id = File.Exists(filePath) ? File.ReadAllLines(filePath).Length + 1 : 1,
-            CustomerId = customerId,
-            OrderDate = DateTime.Now,
-            Status = "Pending"
-        };
+        
         var products = productService.GetAllProducts();
 
         while (true)
@@ -95,7 +99,8 @@ public class OrderService
         string confirm = Console.ReadLine();
         if (confirm == "No")
         {
-            Console.WriteLine("Order canceled");
+            order.Status = "Canceled";
+            Console.WriteLine("Order canceled with Status: " + order.Status);
             return;
         }
         
@@ -198,7 +203,7 @@ public class OrderService
             }
 
             DateTime orderDate = DateTime.Parse(parts[2]);
-            if (orderDate.Date == today)
+            if (orderDate.Date == today && parts[6] == "Confirmed")
             {
                 orderCount++;
                 totalSales += decimal.Parse(parts[3]);
@@ -226,12 +231,17 @@ public class OrderService
         foreach (var line in lines)
         {
             string[] parts = line.Split('|');
-            if (parts.Length < 7)
+            if (parts.Length < 8)
             {
                 continue;
             }
 
-            string[] items = parts[6].Split(';');
+            if (parts[6] != "Confirmed")
+            {
+                continue;
+            }
+
+            string[] items = parts[7].Split(';');
             foreach (var item in items)
             {
                 var itemParts = item.Split(':');
@@ -341,7 +351,7 @@ public class OrderService
         string choice = Console.ReadLine()!;
         if (choice == "Cancel")
         {
-            string[] items = orderLine.Split('|')[6].Split(';');
+            string[] items = orderLine.Split('|')[7].Split(';');
             var products = productService.GetAllProducts();
             foreach (var item in items)
             {
@@ -398,4 +408,5 @@ public class OrderService
             Console.WriteLine("Invalid Choice");
         }
     }
+    
 }
