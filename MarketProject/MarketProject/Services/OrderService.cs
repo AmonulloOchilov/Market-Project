@@ -46,7 +46,8 @@ public class OrderService
         {
             Id = File.Exists(filePath) ? File.ReadAllLines(filePath).Length + 1 : 1,
             CustomerId = customerId,
-            OrderDate = DateTime.Now
+            OrderDate = DateTime.Now,
+            Status = "Pending"
         };
         var products = productService.GetAllProducts();
 
@@ -108,7 +109,7 @@ public class OrderService
 
         order.Payment = payment;
         Console.WriteLine($"Change = {order.Change}");
-        
+        order.Status = "Confirmed";
         SaveOrder(order);
         productService.SaveAllProducts(products);
         GenerateReceipt(order);
@@ -119,9 +120,9 @@ public class OrderService
     {
         var itemsText = string.Join(";", order.OrderItems.Select(i => $"{i.ProductId}:{i.Quantity}:{i.Amount}"));
         string line =
-            $"{order.Id}|{order.CustomerId}|{order.OrderDate}|{order.TotalAmount}|{order.Payment}|{order.Change}|{itemsText}";
+            $"{order.Id}|{order.CustomerId}|{order.OrderDate}|{order.TotalAmount}|{order.Payment}|{order.Change}|{order.Status}|{itemsText}";
         File.AppendAllText(filePath, line+Environment.NewLine);
-        Console.WriteLine("Order saved");
+        Console.WriteLine("Order saved with Status: " + order.Status);
     }
 
     private void UpdateStock(Order order)
@@ -159,18 +160,18 @@ public class OrderService
         }
 
         Console.WriteLine(
-            "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10}",
-            "ID", "Customer", "Order Date", "Total", "Payment", "Change", "Items"
+            "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10} {7,-10}",
+            "ID", "Customer", "Order Date", "Total", "Payment", "Change", "Status", "Items"
         );
 
         foreach (var line in lines)
         {
             string[] parts = line.Split('|');
-            if (parts.Length >= 7)
+            if (parts.Length >= 8)
             {
                 Console.WriteLine(
-                    "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10}",
-                    parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]
+                    "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10} {7, -10}",
+                    parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7]
                 );
             }
         }
@@ -328,7 +329,7 @@ public class OrderService
     {
         List<string> lines = File.ReadAllLines(filePath).ToList();
         Console.Write("Enter Order ID to Edit or Cancel: ");
-        long orderId = long.Parse(Console.ReadLine());
+        long orderId = long.Parse(Console.ReadLine()!);
         var orderLine = lines.FirstOrDefault(l => long.Parse(l.Split('|')[0]) == orderId);
         if (orderLine == null)
         {
@@ -347,8 +348,16 @@ public class OrderService
                 string[] parts = item.Split(':');
                 long productId = long.Parse(parts[0]);
                 double quantity = double.Parse(parts[1]);
-                var product = products.First(p => p.Id == productId);
-                product.Quantity += quantity;
+                var product = products.FirstOrDefault(p => p.Id == productId);
+                if (product != null)
+                {
+                    product.Quantity += quantity;
+                }
+                else
+                {
+                    Console.WriteLine($"Product with ID {productId} not found in product list");
+                }
+                
             }
             productService.SaveAllProducts(products);
             lines.Remove(orderLine);
@@ -366,8 +375,16 @@ public class OrderService
                 var parts = item.Split(':');
                 long productId = long.Parse(parts[0]);
                 double quantity = double.Parse(parts[1]);
-                var product = products.First(p => p.Id == productId);
-                product.Quantity += quantity;
+                var product = products.FirstOrDefault(p => p.Id == productId);
+                if (product != null) 
+                {
+                    product.Quantity += quantity;
+                }
+                else
+                {
+                    Console.WriteLine($"Product with ID {productId} not found in product list");
+                }
+                
             }
             productService.SaveAllProducts(products);
             lines.Remove(orderLine);

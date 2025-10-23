@@ -19,11 +19,11 @@ void ShowMenu()
     Console.WriteLine("7. Edit Customer");
     Console.WriteLine("8. Delete Customer");
     Console.WriteLine("9. Create Order");
-    Console.WriteLine(". Edit or Cancel Order");
-    Console.WriteLine("10. View Orders");
-    Console.WriteLine("11. Reports");
-    Console.WriteLine("12. Exit");
-    Console.Write("Select an option (1-12): ");
+    Console.WriteLine("10. Edit or Cancel Order");
+    Console.WriteLine("11. View Orders");
+    Console.WriteLine("12. Reports");
+    Console.WriteLine("13. Exit");
+    Console.Write("Select an option (1-13): ");
 
 }
 while (true)
@@ -60,16 +60,19 @@ while (true)
             orderService.CreateOrder();
             break;
         case "10":
-            orderService.ViewOrders();
+            orderService.EditOrCancelOrder();
             break;
         case "11":
-            ReportsMenu();
+            orderService.ViewOrders();
             break;
         case "12":
+            ReportsMenu();
+            break;
+        case "13":
             Environment.Exit(0);
             break;
         default:
-            Console.WriteLine("Invalid Option. Please select (1-12)");
+            Console.WriteLine("Invalid Option. Please select (1-13)");
             break;
     }
 }
@@ -160,10 +163,5 @@ void ReportsMenu()
             Console.WriteLine("Invalid Option. Try again");
             break;
     }
-
-    void lol()
-    {
-        
-    }
-
+    
 }

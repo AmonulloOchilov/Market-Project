@@ -5,7 +5,7 @@ public class Order
     public long Id { get; set; }
     public long CustomerId { get; set; } // O -> C
     public DateTime OrderDate { get; set; }
-    
+    public string Status { get; set; } = "Pending";
     public List<OrderItem> OrderItems { get; set; } // O -> OI
     
     public Order() 
