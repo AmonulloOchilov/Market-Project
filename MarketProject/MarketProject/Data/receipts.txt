@@ -28,3 +28,13 @@ Total: 4
 Payment: 5
 Change: 1
 ----------------------------
+=== RECEIPT ===
+Order ID: 3
+Customer: 2
+Date: 10/24/2025 6:09:00 PM
+Items:
+Pear q: 25 = 87.5
+Total: 87.5
+Payment: 88
+Change: 0.5
+----------------------------

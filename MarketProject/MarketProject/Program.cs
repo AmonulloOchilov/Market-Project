@@ -21,9 +21,10 @@ void ShowMenu()
     Console.WriteLine("9. Create Order");
     Console.WriteLine("10. Edit or Cancel Order");
     Console.WriteLine("11. View Orders");
-    Console.WriteLine("12. Reports");
-    Console.WriteLine("13. Exit");
-    Console.Write("Select an option (1-13): ");
+    Console.WriteLine("12. View Customer Order History");
+    Console.WriteLine("13. Reports");
+    Console.WriteLine("14. Exit");
+    Console.Write("Select an option (1-14): ");
 
 }
 while (true)
@@ -66,13 +67,16 @@ while (true)
             orderService.ViewOrders();
             break;
         case "12":
-            ReportsMenu();
+            orderService.ViewCustomerOrderHistory();
             break;
         case "13":
+            ReportsMenu();
+            break;
+        case "14":
             Environment.Exit(0);
             break;
         default:
-            Console.WriteLine("Invalid Option. Please select (1-13)");
+            Console.WriteLine("Invalid Option. Please select (1-14)");
             break;
     }
 }
@@ -137,7 +141,7 @@ void ReportsMenu()
 {
     Console.WriteLine("Reports Menu:");
     Console.WriteLine("1. Low stock products");
-    Console.WriteLine("2. Daily sales summery");
+    Console.WriteLine("2. Daily sales summary");
     Console.WriteLine("3. Best selling products");
     Console.WriteLine("4. Receipts");
     Console.WriteLine("5. Back to Main Menu");

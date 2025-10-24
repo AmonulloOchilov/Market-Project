@@ -74,7 +74,7 @@ public class OrderService
 
             Console.Write("Enter Quantity: ");
             double quantity = double.Parse(Console.ReadLine());
-            if (quantity>product.Quantity)
+            if (quantity > product.Quantity) 
             {
                 Console.WriteLine($"Not enough stock. Only {product.Quantity} left.");
                 continue;
@@ -378,7 +378,7 @@ public class OrderService
         else if (choice == "Edit")
         {
             Console.WriteLine("Canceling the old order to restore the stock");
-            string[] items = orderLine.Split('|')[6].Split(';');
+            string[] items = orderLine.Split('|')[7].Split(';');
             var products = productService.GetAllProducts();
             foreach (var item in items)
             {
@@ -406,6 +406,43 @@ public class OrderService
         else
         {
             Console.WriteLine("Invalid Choice");
+        }
+    }
+
+    public void ViewCustomerOrderHistory()
+    {
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("No Orders found");
+            return;
+        }
+
+        Console.Write("Enter Customer ID to see Order History: ");
+        long customerId = long.Parse(Console.ReadLine()!);
+        
+        var allLines = File.ReadAllLines(filePath);
+        bool found = false;
+        foreach (var line in allLines)
+        {
+            string[] parts = line.Split('|');
+            
+            if (long.Parse(parts[1]) == customerId)
+            {
+                found = true;
+                Console.WriteLine("=== Order Information of a Customer ===");
+                Console.WriteLine($"Order ID:       {parts[0]}");
+                Console.WriteLine($"Customer ID:    {parts[1]}");
+                Console.WriteLine($"Date:           {parts[2]}");
+                Console.WriteLine($"Items:          {parts[7]}");
+                Console.WriteLine($"Total:          {parts[4]}");
+                Console.WriteLine($"Status:         {parts[6]}");
+                Console.WriteLine();
+            }
+        }
+
+        if (!found)
+        {
+            Console.WriteLine("The Customer has no order history.");
         }
     }
     
