@@ -87,21 +87,24 @@ void AddProductMenu()
     try
     {
         Console.Write("Enter Product ID: ");
-        long id = long.Parse(Console.ReadLine());
+        long id = long.Parse(Console.ReadLine()!);
             
         Console.Write("Enter Product Name: ");
-        string name = Console.ReadLine();
-            
-        Console.Write("Enter Price: ");
-        decimal price = decimal.Parse(Console.ReadLine());
+        string name = Console.ReadLine()!;
             
         Console.Write("Enter Quantity: ");
-        double quantity = double.Parse(Console.ReadLine());
-            
+        double quantity = double.Parse(Console.ReadLine()!);
+
+        Console.Write("Enter Expire Date: ");
+        DateOnly expireDate = DateOnly.Parse(Console.ReadLine()!);
+        
+        Console.Write("Enter Price: ");
+        decimal price = decimal.Parse(Console.ReadLine()!);
+        
         Console.Write("Enter Category ID: ");
-        long categoryId = long.Parse(Console.ReadLine());
+        long categoryId = long.Parse(Console.ReadLine()!);
             
-        productService.AddProduct(id, name, price, quantity, categoryId);
+        productService.AddProduct(id, name, quantity, expireDate,price,   categoryId);
     }
     catch (Exception ex)
     {

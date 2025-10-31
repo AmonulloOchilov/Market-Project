@@ -1,5 +1,5 @@
 using MarketProject.Entities;
-
+using System.Text.Json;
 namespace MarketProject.Services;
 
 public class ProductService
@@ -14,21 +14,54 @@ public class ProductService
             Directory.CreateDirectory(dataFolder);
         }
 
-        filePath = Path.Combine(dataFolder, "products.txt");
+        filePath = Path.Combine(dataFolder, "products.json");
+    }
+    private List<Product> LoadProducts()
+    {
+        if (!File.Exists(filePath))
+        {
+            return new List<Product>();
+        }
+            
+
+        string json = File.ReadAllText(filePath);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return new List<Product>();
+        }
+        
+        var result = JsonSerializer.Deserialize<List<Product>>(json);
+        if (result != null)
+        {
+            return result;
+        }
+        else
+        {
+            return new List<Product>();
+        }
+    }
+    
+    private void SaveProducts(List<Product> products)
+    {
+        string json = JsonSerializer.Serialize(products, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json);
     }
 
-    public void AddProduct(long id, string name, decimal price, double quantity, long categoryId)
+    public void AddProduct(long id, string name, double quantity, DateOnly expireDate, decimal price, long categoryId)
     {
+        var products = LoadProducts();
         var product = new Product()
         {
             Id = id,
             Name = name,
-            PricePerUnit = price,
             Quantity = quantity,
-            CategoryID = categoryId
+            ExpireDate = expireDate,
+            PricePerUnit = price,
+            CategoryID = categoryId,
+            
         };
-        string line = $"{product.Id}|{product.Name}|{product.PricePerUnit}|{product.Quantity}|{product.CategoryID}";
-        File.AppendAllText(filePath, line + Environment.NewLine);
+        products.Add(product);
+        SaveProducts(products);
         Console.WriteLine("Product saved successfully!");
     }
 
