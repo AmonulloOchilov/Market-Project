@@ -1,8 +1,8 @@
 [
   {
     "Id": 1,
-    "Name": "A",
-    "Quantity": 1,
+    "Name": "Apple",
+    "Quantity": 100,
     "ExpireDate": "2025-11-11",
     "PricePerUnit": 3,
     "CategoryID": 1

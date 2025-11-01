@@ -73,105 +73,81 @@ public class ProductService
             return;
         }
 
-        string[] lines = File.ReadAllLines(filePath);
-        if (lines.Length == 0)
+        string json = File.ReadAllText(filePath);
+        var products = LoadProducts();
+        if (string.IsNullOrWhiteSpace(json) || products.Count == 0)
         {
             Console.WriteLine("No products available");
         }
-
-        Console.WriteLine("ID\tName\tPrice\tQuantity\tCategory");
-        foreach (var line in lines)
+        
+        foreach (var product in products)
         {
-            string[] parts = line.Split('|');
-            if (parts.Length == 5)
-            {
-                Console.WriteLine($"{parts[0]}\t{parts[1]}\t{parts[2]}\t{parts[3]}\t\t{parts[4]}");
-            }
+            Console.WriteLine($"ID: {product.Id} - Name: {product.Name} - Quantity: {product.Quantity} - Expiration Date: {product.ExpireDate} - Price: {product.PricePerUnit} - Category ID: {product.CategoryID}");
         }
     }
 
     public void EditProduct()
     {
-        List<string> lines = File.ReadAllLines(filePath).ToList();
+        var products = LoadProducts();
         Console.Write("Enter product ID: ");
-        long productId = long.Parse(Console.ReadLine());
-        for (int i = 0; i < lines.Count; i++) 
+        long productId = long.Parse(Console.ReadLine()!);
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product == null)
         {
-            string[] parts = lines[i].Split('|');
-            if (long.Parse(parts[0]) == productId)
-            {
-                string oldName = parts[1];
-                Console.Write($"Current Name: {oldName}, enter new name or press Enter to keep: ");
-                string newName = Console.ReadLine();
-                if (string.IsNullOrEmpty(newName))
-                {
-                    newName = oldName;
-                }
-
-                parts[1] = newName;
-
-                string oldPrice = parts[2];
-                Console.Write($"Current Price: {oldPrice}, enter new price or press Enter to keep: ");
-                string newPrice = Console.ReadLine();
-                if (string.IsNullOrEmpty(newPrice))
-                {
-                    newPrice = oldPrice;
-                }
-
-                parts[2] = newPrice;
-
-                string oldQuantity = parts[3];
-                Console.Write($"Current Quantity: {oldQuantity}, enter new quantity or press Enter to keep: ");
-                string newQuantity = Console.ReadLine();
-                if (string.IsNullOrEmpty(newQuantity))
-                {
-                    newQuantity = oldQuantity;
-                }
-
-                parts[3] = newQuantity;
-
-                string oldCategory = parts[4];
-                Console.Write($"Current Category: {oldCategory}, enter new category or press Enter to keep: ");
-                string newCategory = Console.ReadLine();
-                if (string.IsNullOrEmpty(newCategory))
-                {
-                    newCategory = oldCategory;
-                }
-
-                parts[4] = newCategory;
-                
-                int index = lines.IndexOf(lines[i]);
-                lines[index] = string.Join('|', parts);
-                File.WriteAllLines(filePath, lines);
-                Console.WriteLine("Product saved");
-            }
+            Console.WriteLine("Product not found");
+            return;
         }
+        
+        Console.Write($"Current Name: {product.Name}, enter new name or press Enter to keep: ");
+        string newName = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(newName))
+        {
+            product.Name = newName;
+        }
+
+        Console.Write($"Current Price: {product.PricePerUnit}, enter New Price or press Enter to keep: ");
+        string newPrice = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(newPrice))
+        {
+            product.PricePerUnit = Convert.ToDecimal(newPrice);
+        }
+        
+        Console.Write($"Current Quantity: {product.Quantity}, enter New Quantity or press Enter to keep: ");
+        string newQuantity = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(newQuantity))
+        {
+            product.Quantity = Convert.ToDouble(newQuantity);
+        }
+
+        Console.Write($"Current Category ID: {product.CategoryID}, enter New Category ID or press Enter to keep: ");
+        string newCategoryId = Console.ReadLine()!;
+        if (!string.IsNullOrWhiteSpace(newCategoryId))
+        {
+            product.CategoryID = Convert.ToInt64(newCategoryId);
+        }
+        
+        SaveProducts(products);
+        Console.WriteLine("Product saved");
     }
 
     public void DeleteProduct()
     {
-        List<string> lines = File.ReadAllLines(filePath).ToList();
+        var products = LoadProducts();
         Console.Write("Enter product ID: ");
-        long productId = long.Parse(Console.ReadLine());
-        bool found = false;
-        for (int i = 0; i < lines.Count; i++)
+        long productId = long.Parse(Console.ReadLine()!);
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product == null)
         {
-            string[] parts = lines[i].Split('|');
-            if (long.Parse(parts[0]) == productId)
-            {
-                found = true;
-                lines.RemoveAt(i);
-                File.WriteAllLines(filePath, lines);
-                Console.WriteLine($"Product '{parts[1]}' is deleted");
-                return;
-            }
-            
+            Console.WriteLine("Product not found");
+            return;
         }
-        if (!found)
+
+        if (product != null)
         {
-            Console.WriteLine("Product ID not found");
+            products.Remove(product);
+            Console.WriteLine($"Product {product.Name} is removed");
         }
-        
+        SaveProducts(products);
     }
 
     public void ReportsLowStock()
