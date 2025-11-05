@@ -152,61 +152,30 @@ public class ProductService
 
     public void ReportsLowStock()
     {
-        if (!File.Exists(filePath))
+        var products = LoadProducts();
+
+        var lowStock = products.Where(p => p.Quantity < 5).ToList();
+        if (lowStock.Count == 0)
         {
-            Console.WriteLine("No products found");
+            Console.WriteLine("No low stock products.");
             return;
         }
 
-        string[] lines = File.ReadAllLines(filePath);
-        Console.WriteLine("Low Stock Products (Less then 5):");
+        Console.WriteLine("Low Stock Products (less than 5):");
         Console.WriteLine("ID\tName\tQuantity");
-        foreach (var line in lines)
+
+        foreach (var p in lowStock)
         {
-            string[] parts = line.Split('|');
-            if (parts.Length == 5)
-            {
-                long id = long.Parse(parts[0]);
-                string name = parts[1];
-                double quantity = double.Parse(parts[3]);
-                if (quantity < 5) 
-                {
-                    Console.WriteLine($"{id}\t{name}\t\t{quantity}");
-                }
-            }
+            Console.WriteLine($"{p.Id}\t{p.Name}\t{p.Quantity}");
         }
     }
+
     public List<Product> GetAllProducts()
     {
-        var products = new List<Product>();
-        if (!File.Exists(filePath))
-        {
-            return products;
-        }
-
-        var lines = File.ReadAllLines(filePath);
-        foreach (var line in lines)
-        {
-            var parts = line.Split('|');
-            if (parts.Length == 5)
-            {
-                products.Add(new Product
-                {
-                    Id = long.Parse(parts[0]),
-                    Name = parts[1],
-                    PricePerUnit = decimal.Parse(parts[2]),
-                    Quantity = double.Parse(parts[3]),
-                    CategoryID = long.Parse(parts[4])
-                });
-            }
-        }
-        return products;
+        return LoadProducts();
     }
-
     public void SaveAllProducts(List<Product> products)
     {
-        var lines = products.Select(p => $"{p.Id}|{p.Name}|{p.PricePerUnit}|{p.Quantity}|{p.CategoryID}");
-        File.WriteAllLines(filePath,lines);
+        SaveProducts(products);
     }
-
 }

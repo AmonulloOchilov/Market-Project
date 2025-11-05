@@ -1,140 +1,150 @@
-namespace MarketProject.Services;
+using System.Text.Json;
+using MarketProject.Entities;
 
-public class CustomerService
+namespace MarketProject.Services
 {
-    public readonly string filePath;
-    public CustomerService()
+    public class CustomerService
     {
-        string dataFolder =
-        "/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/Data";
-        if (!Directory.Exists(dataFolder))
+        private readonly string filePath;
+
+        public CustomerService()
         {
-            Directory.CreateDirectory(dataFolder);
-        }
-
-        filePath = Path.Combine(dataFolder, "customers.txt");
-    }
-
-    public void AddCustomer(long id, string name, string surname, string email, string phoneNumber)
-    {
-        string line = $"{id}|{name}|{surname}|{email}|{phoneNumber}";
-        File.AppendAllText(filePath, line + Environment.NewLine);
-        Console.WriteLine("Customer saved successfully!");
-    }
-
-    public void ViewCustomers()
-    {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("No customers found");
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(filePath);
-        if (lines.Length == 0)
-        {
-            Console.WriteLine("No customers available");
-        }
-
-        Console.WriteLine(
-            "{0,-5} {1,-20} {2,-20} {3,-30} {4,-15}",
-            "ID", "Name", "Surname", "Email", "Phone Number"
-        );
-
-        foreach (var line in lines)
-        {
-            string[] parts = line.Split('|');
-            if (parts.Length == 5)
+            string dataFolder = "/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/Data";
+            if (!Directory.Exists(dataFolder))
             {
-                Console.WriteLine(
-                    "{0,-5} {1,-20} {2,-20} {3,-30} {4,-15}",
-                    parts[0], parts[1], parts[2], parts[3], parts[4]
-                );
+                Directory.CreateDirectory(dataFolder);
             }
+
+            filePath = Path.Combine(dataFolder, "customers.json");
         }
-    }
-
-    public void EditCustomer()
-    {
-        List<string> lines = File.ReadAllLines(filePath).ToList();
-        Console.Write("Enter Customer ID: ");
-        long customerId = long.Parse(Console.ReadLine());
-        for (int i = 0; i < lines.Count; i++)
+        private List<Customer> LoadCustomers()
         {
-            string[] parts = lines[i].Split('|');
-            if (long.Parse(parts[0]) == customerId)
+            if (!File.Exists(filePath))
             {
-                string oldName = parts[1];
-                Console.Write($"Current Name: {oldName}, enter new name or press Enter to keep: ");
-                string newName = Console.ReadLine();
-                if (string.IsNullOrEmpty(newName))
-                {
-                    newName = oldName;
-                }
-
-                parts[1] = newName;
-
-                string oldSurname = parts[2];
-                Console.Write($"Current Surname: {oldSurname}, enter new surname or press Enter to keep: ");
-                string newSurname = Console.ReadLine();
-                if (string.IsNullOrEmpty(newSurname))
-                {
-                    newSurname = oldSurname;
-                }
-
-                parts[2] = newSurname;
-
-                string oldEmail = parts[3];
-                Console.Write($"Current Email: {oldEmail}, enter new email or press Enter to keep: ");
-                string newEmail = Console.ReadLine();
-                if (string.IsNullOrEmpty(newEmail))
-                {
-                    newEmail = oldEmail;
-                }
-
-                parts[3] = newEmail;
-
-                string oldPhoneNumber = parts[4];
-                Console.Write($"Current Phone Number: {oldPhoneNumber}, enter new number or press to keep: ");
-                string newPhoneNumber = Console.ReadLine();
-                if (string.IsNullOrEmpty(newPhoneNumber))
-                {
-                    newPhoneNumber = oldPhoneNumber;
-                }
-
-                parts[4] = newPhoneNumber;
-                int index = lines.IndexOf(lines[i]);
-                lines[index] = string.Join('|', parts);
-                File.WriteAllLines(filePath, lines);
-                Console.WriteLine("Customer saved");
+                return new List<Customer>();
             }
-            
+
+            string json = File.ReadAllText(filePath);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<Customer>();
+            }
+
+            return JsonSerializer.Deserialize<List<Customer>>(json) ?? new List<Customer>();
         }
 
-    }
-
-    public void DeleteCustomer()
-    {
-        List<string> lines = File.ReadAllLines(filePath).ToList();
-        Console.Write("Enter Customer ID: ");
-        long customerId = long.Parse(Console.ReadLine());
-        bool found = false;
-        for (int i = 0; i < lines.Count; i++)
+        private void SaveCustomers(List<Customer> customers)
         {
-            string[] parts = lines[i].Split('|');
-            if (long.Parse(parts[0]) == customerId)
+            string json = JsonSerializer.Serialize(customers, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
+        }
+        public void AddCustomer(long id, string name, string surname, string email, string phoneNumber)
+        {
+            var customers = LoadCustomers();
+
+            if (customers.Any(c => c.Id == id))
             {
-                found = true;
-                lines.RemoveAt(i);
-                File.WriteAllLines(filePath, lines);
-                Console.WriteLine($"Customer {parts[1]} {parts[2]} is deleted");
+                Console.WriteLine("Customer with this ID already exists!");
                 return;
             }
+
+            customers.Add(new Customer
+            {
+                Id = id,
+                Name = name,
+                Surname = surname,
+                Email = email,
+                PhoneNumber = phoneNumber
+            });
+
+            SaveCustomers(customers);
+            Console.WriteLine("Customer saved");
         }
 
-        if (!found)
+        public void ViewCustomers()
         {
-            Console.WriteLine("Customer ID not found");
+            var customers = LoadCustomers();
+            if (customers.Count == 0)
+            {
+                Console.WriteLine("No customers available");
+                return;
+            }
+
+            Console.WriteLine("{0,-5} {1,-20} {2,-20} {3,-30} {4,-15}",
+                "ID", "Name", "Surname", "Email", "Phone Number");
+
+            foreach (var c in customers)
+            {
+                Console.WriteLine("{0,-5} {1,-20} {2,-20} {3,-30} {4,-15}",
+                    c.Id, c.Name, c.Surname, c.Email, c.PhoneNumber);
+            }
         }
+
+        public void EditCustomer()
+        {
+            var customers = LoadCustomers();
+            if (customers.Count == 0)
+            {
+                Console.WriteLine("No customers found");
+                return;
+            }
+
+            Console.Write("Enter Customer ID: ");
+            long id = long.Parse(Console.ReadLine()!);
+
+            var customer = customers.FirstOrDefault(c => c.Id == id);
+            if (customer == null)
+            {
+                Console.WriteLine("Customer not found.");
+                return;
+            }
+
+            Console.Write($"Current Name ({customer.Name}): ");
+            string newName = Console.ReadLine()!;
+            if (!string.IsNullOrEmpty(newName)) customer.Name = newName;
+
+            Console.Write($"Current Surname ({customer.Surname}): ");
+            string newSurname = Console.ReadLine()!;
+            if (!string.IsNullOrEmpty(newSurname)) customer.Surname = newSurname;
+
+            Console.Write($"Current Email ({customer.Email}): ");
+            string newEmail = Console.ReadLine()!;
+            if (!string.IsNullOrEmpty(newEmail)) customer.Email = newEmail;
+
+            Console.Write($"Current Phone Number ({customer.PhoneNumber}): ");
+            string newPhone = Console.ReadLine()!;
+            if (!string.IsNullOrEmpty(newPhone))
+            {
+                customer.PhoneNumber = newPhone;
+            }
+
+            SaveCustomers(customers);
+            Console.WriteLine("Customer updated successfully!");
+        }
+        public void DeleteCustomer()
+        {
+            var customers = LoadCustomers();
+            if (customers.Count == 0)
+            {
+                Console.WriteLine("No customers found");
+                return;
+            }
+
+            Console.Write("Enter Customer ID: ");
+            long id = long.Parse(Console.ReadLine()!);
+
+            var customer = customers.FirstOrDefault(c => c.Id == id);
+            if (customer == null)
+            {
+                Console.WriteLine("Customer ID not found");
+                return;
+            }
+            customers.Remove(customer);
+            SaveCustomers(customers);
+            Console.WriteLine($"Customer {customer.Name} {customer.Surname} is deleted.");
+        }
+        
     }
+    
+    
 }

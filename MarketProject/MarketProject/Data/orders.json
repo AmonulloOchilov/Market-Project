@@ -1,2 +1,56 @@
-{
-}
+[
+  {
+    "Id": 1,
+    "CustomerId": 2,
+    "OrderDate": "2025-11-05T21:37:00.919619+02:00",
+    "Status": "Confirmed",
+    "OrderItems": [
+      {
+        "Id": 1,
+        "OrderId": 1,
+        "ProductId": 1,
+        "Quantity": 10,
+        "Amount": 35.0
+      }
+    ],
+    "TotalAmount": 35.0,
+    "Payment": 36,
+    "Change": 1.0
+  },
+  {
+    "Id": 2,
+    "CustomerId": 2,
+    "OrderDate": "2025-11-05T21:48:46.47547+02:00",
+    "Status": "Confirmed",
+    "OrderItems": [
+      {
+        "Id": 1,
+        "OrderId": 2,
+        "ProductId": 1,
+        "Quantity": 10,
+        "Amount": 35.0
+      }
+    ],
+    "TotalAmount": 35.0,
+    "Payment": 40,
+    "Change": 5.0
+  },
+  {
+    "Id": 3,
+    "CustomerId": 2,
+    "OrderDate": "2025-11-05T22:11:28.868983+02:00",
+    "Status": "Confirmed",
+    "OrderItems": [
+      {
+        "Id": 1,
+        "OrderId": 3,
+        "ProductId": 1,
+        "Quantity": 10,
+        "Amount": 35.0
+      }
+    ],
+    "TotalAmount": 35.0,
+    "Payment": 40,
+    "Change": 5.0
+  }
+]

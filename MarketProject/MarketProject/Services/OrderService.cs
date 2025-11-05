@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MarketProject.Entities;
 using Microsoft.VisualBasic;
 
@@ -8,7 +9,7 @@ public class OrderService
     private readonly string filePath;
     private readonly ProductService productService;
     private readonly CustomerService customerService;
-    private string? receiptFilePath;
+    private readonly string? receiptFilePath;
     
 
     public OrderService(ProductService productService, CustomerService customerService)
@@ -19,9 +20,40 @@ public class OrderService
             Directory.CreateDirectory(dataFolder);
         }
 
-        filePath = Path.Combine(dataFolder, "orders.txt");
+        filePath = Path.Combine(dataFolder, "orders.json");
+        receiptFilePath = Path.Combine(dataFolder, "receipts.txt");
         this.productService = productService;
         this.customerService = customerService;
+    }
+
+    private List<Order> LoadOrders()
+    {
+        if (!File.Exists(filePath))
+        {
+            return new List<Order>();
+        }
+
+        string json = File.ReadAllText(filePath);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return new List<Order>();
+        }
+
+        var result = JsonSerializer.Deserialize<List<Order>>(json);
+        if (result != null)
+        {
+            return result;
+        }
+        else
+        {
+            return new List<Order>();
+        }
+    }
+
+    private void SaveOrder(List<Order> orders)
+    {
+        string json = JsonSerializer.Serialize(orders, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json);
     }
 
     public void CreateOrder()
@@ -29,9 +61,19 @@ public class OrderService
         Console.WriteLine("Create a new order");
         Console.Write("Enter Customer ID: ");
         long customerId = long.Parse(Console.ReadLine()!);
+        var orders = LoadOrders();
+        long nextId;
+        if (orders.Count == 0)
+        {
+            nextId = 1;
+        }
+        else
+        {
+            nextId = orders.Max(o => o.Id) + 1;
+        }
         Order order = new Order
         {
-            Id = File.Exists(filePath) ? File.ReadAllLines(filePath).Length + 1 : 1,
+            Id = nextId,
             CustomerId = customerId,
             OrderDate = DateTime.Now,
             Status = "Pending"
@@ -39,27 +81,13 @@ public class OrderService
         
         Console.WriteLine("Order Status: " + order.Status);
         
-        
-        string[] customerLines = File.ReadAllLines(customerService.filePath);
-        bool customerExists = customerLines.Any(line =>
-        {
-            string[] parts = line.Split('|');
-            return long.Parse(parts[0]) == customerId;
-        });
-        if (!customerExists)
-        {
-            Console.WriteLine("Customer not found, try again");
-            return;
-        }
-
-        
         var products = productService.GetAllProducts();
-
+        
         while (true)
         {
             productService.ViewProducts();
             Console.Write("Enter Product ID to add or press 0 to finish: ");
-            long productId = long.Parse(Console.ReadLine());
+            long productId = long.Parse(Console.ReadLine()!);
             if (productId == 0)
             {
                 break;
@@ -73,7 +101,7 @@ public class OrderService
             }
 
             Console.Write("Enter Quantity: ");
-            double quantity = double.Parse(Console.ReadLine());
+            double quantity = double.Parse(Console.ReadLine()!);
             if (quantity > product.Quantity) 
             {
                 Console.WriteLine($"Not enough stock. Only {product.Quantity} left.");
@@ -84,7 +112,7 @@ public class OrderService
 
             OrderItem item = new OrderItem()
             {
-                Id = DateTime.Now.Ticks,
+                Id = order.OrderItems.Count+1,
                 OrderId = order.Id,
                 ProductId = productId,
                 Quantity = quantity,
@@ -96,7 +124,7 @@ public class OrderService
         
         Console.WriteLine($"\nOrder Total: {order.TotalAmount}");
         Console.WriteLine("Confirm Order? Yes/No");
-        string confirm = Console.ReadLine();
+        string confirm = Console.ReadLine()!;
         if (confirm == "No")
         {
             order.Status = "Canceled";
@@ -105,7 +133,7 @@ public class OrderService
         }
         
         Console.Write("Enter Payment: ");
-        decimal payment = decimal.Parse(Console.ReadLine());
+        decimal payment = decimal.Parse(Console.ReadLine()!);
         if (payment < order.TotalAmount) 
         {
             Console.WriteLine("Payment not enough, order cancelled");
@@ -113,23 +141,16 @@ public class OrderService
         }
 
         order.Payment = payment;
-        Console.WriteLine($"Change = {order.Change}");
         order.Status = "Confirmed";
-        SaveOrder(order);
+        Console.WriteLine($"Change = {order.Change}");
+        orders.Add(order);
+        SaveOrder(orders);
         productService.SaveAllProducts(products);
+        
         GenerateReceipt(order);
         Console.WriteLine("Order confirmed and stock updated\n");
     }
-
-    private void SaveOrder(Order order)
-    {
-        var itemsText = string.Join(";", order.OrderItems.Select(i => $"{i.ProductId}:{i.Quantity}:{i.Amount}"));
-        string line =
-            $"{order.Id}|{order.CustomerId}|{order.OrderDate}|{order.TotalAmount}|{order.Payment}|{order.Change}|{order.Status}|{itemsText}";
-        File.AppendAllText(filePath, line+Environment.NewLine);
-        Console.WriteLine("Order saved with Status: " + order.Status);
-    }
-
+    
     private void UpdateStock(Order order)
     {
         var productLines = File.ReadAllLines(productService.filePath).ToList();
@@ -151,176 +172,133 @@ public class OrderService
     }
     public void ViewOrders()
     {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("No orders found");
-            return;
-        }
+        var orders = LoadOrders();
 
-        string[] lines = File.ReadAllLines(filePath);
-        if (lines.Length == 0)
+        if (orders.Count == 0)
         {
             Console.WriteLine("No orders available");
             return;
         }
 
-        Console.WriteLine(
-            "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10} {7,-10}",
-            "ID", "Customer", "Order Date", "Total", "Payment", "Change", "Status", "Items"
-        );
-
-        foreach (var line in lines)
+        foreach (var order in orders)
         {
-            string[] parts = line.Split('|');
-            if (parts.Length >= 8)
+            Console.WriteLine($"\nOrder ID: {order.Id}");
+            Console.WriteLine($"Customer ID: {order.CustomerId}");
+            Console.WriteLine($"Order Date: {order.OrderDate}");
+            Console.WriteLine($"Status: {order.Status}");
+            Console.WriteLine("Items:");
+
+            if (order.OrderItems.Count == 0)
             {
-                Console.WriteLine(
-                    "{0,-5} {1,-10} {2,-30} {3,-10} {4,-10} {5,-10} {6,-10} {7, -10}",
-                    parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7]
-                );
-            }
-        }
-    }
-
-    public void ReportDailySales()
-    {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("No Orders found");
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(filePath);
-        var today = DateTime.Now.Date;
-        int orderCount = 0;
-        decimal totalSales = 0;
-        foreach (var line in lines)
-        {
-            string[] parts = line.Split('|');
-            if (parts.Length < 7)
-            {
-                continue;
-            }
-
-            DateTime orderDate = DateTime.Parse(parts[2]);
-            if (orderDate.Date == today && parts[6] == "Confirmed")
-            {
-                orderCount++;
-                totalSales += decimal.Parse(parts[3]);
-            }
-            
-        }
-
-        Console.WriteLine($"Daily Sales Summery ({today:dd.MM.yyyy}):");
-        Console.WriteLine($"Total Orders: {orderCount}");
-        Console.WriteLine($"Total Sales: {totalSales}");
-        
-    }
-
-    public void ReportBestSellingProducts()
-    {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("No orders found.");
-            return;
-        }
-
-        Dictionary<long, int> productSales = new Dictionary<long, int>();
-
-        var lines = File.ReadAllLines(filePath);
-        foreach (var line in lines)
-        {
-            string[] parts = line.Split('|');
-            if (parts.Length < 8)
-            {
-                continue;
-            }
-
-            if (parts[6] != "Confirmed")
-            {
-                continue;
-            }
-
-            string[] items = parts[7].Split(';');
-            foreach (var item in items)
-            {
-                var itemParts = item.Split(':');
-                if (itemParts.Length < 2) continue;
-
-                long productId = long.Parse(itemParts[0]);
-                int quantity = int.Parse(itemParts[1]);
-
-                if (productSales.ContainsKey(productId))
-                {
-                    productSales[productId] += quantity;
-                }
-                else
-                {
-                    productSales[productId] = quantity;
-                }
-            }
-        }
-
-        var products = productService.GetAllProducts();
-        Console.WriteLine("Best selling products:");
-        foreach (var kv in productSales.OrderByDescending(k => k.Value))
-        {
-            var product = products.FirstOrDefault(p => p.Id == kv.Key);
-            string name;
-            if (product != null)
-            {
-                name = product.Name;
+                Console.WriteLine("  No items");
             }
             else
             {
-                name = $"Product {kv.Key}";
+                foreach (var item in order.OrderItems)
+                {
+                    Console.WriteLine($"  Product ID: {item.ProductId} | Quantity: {item.Quantity} | Amount: {item.Amount}");
+                }
             }
+
+            Console.WriteLine($"Total: {order.TotalAmount}");
+            Console.WriteLine($"Payment: {order.Payment}");
+            Console.WriteLine($"Change: {order.Change}");
+        }
+    }
+
+
+    public void ReportDailySales()
+    {
+        var orders = LoadOrders();
+        if (orders.Count == 0)
+        {
+            Console.WriteLine("No orders found");
+            return;
+        }
+        DateTime today = DateTime.Now.Date;
+        List<Order> confirmedTodayOrders = orders
+            .Where(o => o.OrderDate.Date == today && o.Status == "Confirmed").ToList();
+        int orderCount = confirmedTodayOrders.Count;
+        decimal totalSales = confirmedTodayOrders.Sum(o => o.TotalAmount);
+        
+        Console.WriteLine($"\nDaily Sales Summary ({today:dd.MM.yyyy}):");
+        Console.WriteLine($"Total Orders: {orderCount}");
+        Console.WriteLine($"Total Sales: {totalSales}");
+    }
+
+
+    public void ReportBestSellingProducts()
+    {
+        var orders = LoadOrders().Where(o => o.Status == "Confirmed").ToList();
+        if (orders.Count == 0)
+        {
+            Console.WriteLine("No confirmed orders found.");
+            return;
+        }
+        var productSales = new Dictionary<long, double>();
+
+        foreach (var order in orders)
+        {
+            foreach (var item in order.OrderItems)
+            {
+                if (!productSales.ContainsKey(item.ProductId))
+                    productSales[item.ProductId] = 0;
+
+                productSales[item.ProductId] += item.Quantity;
+            }
+        }
+        var products = productService.GetAllProducts();
+
+        Console.WriteLine("\nBest Selling Products:");
+        foreach (var kv in productSales.OrderByDescending(k => k.Value))
+        {
+            var product = products.FirstOrDefault(p => p.Id == kv.Key);
+            string name = product?.Name ?? $"Product {kv.Key}";
             Console.WriteLine($"{name} - {kv.Value} sold");
         }
     }
 
+
     private void GenerateReceipt(Order order)
     {
-        string receiptFile = "/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/Data/receipts.txt";
-        Console.WriteLine("----------------------------");
-        string receiptText = "=== RECEIPT ===\n";
+        var products = productService.GetAllProducts();
+        string receiptText = "\n RECEIPT \n";
         receiptText += $"Order ID: {order.Id}\n";
         receiptText += $"Customer: {order.CustomerId}\n";
         receiptText += $"Date: {order.OrderDate}\n";
         receiptText += "Items:\n";
-        
 
         foreach (var item in order.OrderItems)
         {
-            string[] productLine = File.ReadAllLines(productService.filePath)
-                .First(line => long.Parse(line.Split('|')[0]) == item.ProductId)
-                .Split('|');
-
-            string productName = productLine[1];
-            receiptText += $"{productName} q: {item.Quantity} = {item.Amount}\n";
+            var product = products.FirstOrDefault(p => p.Id == item.ProductId);
+            string productName = product?.Name ?? "Unknown";
+            receiptText += $"{productName}  Quantity: {item.Quantity}  Price: {item.Amount}\n";
         }
 
         receiptText += $"Total: {order.TotalAmount}\n";
         receiptText += $"Payment: {order.Payment}\n";
-        receiptText += $"Change: {order.Change}\n";
-        receiptText += "----------------------------\n";
-        File.AppendAllText(receiptFile, receiptText);
+        receiptText += $"Change: {order.Change}";
+
+        File.AppendAllText(receiptFilePath, receiptText);
         Console.WriteLine(receiptText);
     }
+    
 
     public void ViewAllReceipts()
     {
-        string receiptsFile = Path.Combine(
+        string receiptFile = Path.Combine(
             "/Users/amonulloochilov/Desktop/Market Project/MarketProject/MarketProject/Data",
             "receipts.txt"
         );
-        if (!File.Exists(receiptsFile))
+
+        if (!File.Exists(receiptFile))
         {
-            Console.WriteLine("No receipts found");
+            Console.WriteLine("No receipts found.");
             return;
         }
 
-        string[] allLines = File.ReadAllLines(receiptsFile);
+        string[] allLines = File.ReadAllLines(receiptFile);
+
         if (allLines.Length == 0)
         {
             Console.WriteLine("No receipts available.");
@@ -331,119 +309,106 @@ public class OrderService
         foreach (var line in allLines)
         {
             Console.WriteLine(line);
-            
         }
     }
 
+
     public void EditOrCancelOrder()
     {
+        var orders = LoadOrders();
+        if (orders.Count == 0)
+        {
+            Console.WriteLine("No orders found.");
+            return;
+        }
+
         List<string> lines = File.ReadAllLines(filePath).ToList();
+
         Console.Write("Enter Order ID to Edit or Cancel: ");
         long orderId = long.Parse(Console.ReadLine()!);
-        var orderLine = lines.FirstOrDefault(l => long.Parse(l.Split('|')[0]) == orderId);
+
+        var orderLine = orders.FirstOrDefault(o => o.Id == orderId);
         if (orderLine == null)
         {
             Console.WriteLine("Order not found");
             return;
         }
 
-        Console.Write($"Do u want to Edit or Cancel this order?(Edit/Cancel): ");
-        string choice = Console.ReadLine()!;
-        if (choice == "Cancel")
-        {
-            string[] items = orderLine.Split('|')[7].Split(';');
-            var products = productService.GetAllProducts();
-            foreach (var item in items)
-            {
-                string[] parts = item.Split(':');
-                long productId = long.Parse(parts[0]);
-                double quantity = double.Parse(parts[1]);
-                var product = products.FirstOrDefault(p => p.Id == productId);
-                if (product != null)
-                {
-                    product.Quantity += quantity;
-                }
-                else
-                {
-                    Console.WriteLine($"Product with ID {productId} not found in product list");
-                }
-                
-            }
-            productService.SaveAllProducts(products);
-            lines.Remove(orderLine);
-            File.WriteAllLines(filePath, lines);
-            Console.WriteLine("Order Canceled");
-            
-        }
-        else if (choice == "Edit")
-        {
-            Console.WriteLine("Canceling the old order to restore the stock");
-            string[] items = orderLine.Split('|')[7].Split(';');
-            var products = productService.GetAllProducts();
-            foreach (var item in items)
-            {
-                var parts = item.Split(':');
-                long productId = long.Parse(parts[0]);
-                double quantity = double.Parse(parts[1]);
-                var product = products.FirstOrDefault(p => p.Id == productId);
-                if (product != null) 
-                {
-                    product.Quantity += quantity;
-                }
-                else
-                {
-                    Console.WriteLine($"Product with ID {productId} not found in product list");
-                }
-                
-            }
-            productService.SaveAllProducts(products);
-            lines.Remove(orderLine);
-            File.WriteAllLines(filePath, lines);
+        Console.Write("Do you want to Edit or Cancel this order? (Edit/Cancel): ");
+        string choice = Console.ReadLine()!.Trim().ToLower();
 
-            Console.WriteLine("Old order canceled. Now create the new order:");
+        var products = productService.GetAllProducts();
+        foreach (var item in orderLine.OrderItems)
+        {
+            var prod = products.FirstOrDefault(p => p.Id == item.ProductId);
+            if (prod != null)
+            {
+                prod.Quantity += item.Quantity;
+            }
+        }
+
+        productService.SaveAllProducts(products);
+        
+        File.WriteAllLines(filePath, lines);
+
+        if (choice == "cancel")
+        {
+            Console.WriteLine("Order successfully canceled.");
+        }
+        else if (choice == "edit")
+        {
+            orders.Remove(orderLine);
+            SaveOrder(orders);
+            Console.WriteLine("Old order removed. Now create a new order:");
             CreateOrder();
+            return;
         }
         else
         {
-            Console.WriteLine("Invalid Choice");
+            Console.WriteLine("Invalid choice.");
+            return;
         }
     }
+
 
     public void ViewCustomerOrderHistory()
     {
-        if (!File.Exists(filePath))
+        var orders = LoadOrders();
+        if (orders.Count == 0)
         {
-            Console.WriteLine("No Orders found");
+            Console.WriteLine("No orders found.");
             return;
         }
 
-        Console.Write("Enter Customer ID to see Order History: ");
+        Console.Write("Enter Customer ID: ");
         long customerId = long.Parse(Console.ReadLine()!);
-        
-        var allLines = File.ReadAllLines(filePath);
-        bool found = false;
-        foreach (var line in allLines)
+
+        var products = productService.GetAllProducts();
+        var custOrders = orders.Where(o => o.CustomerId == customerId).ToList();
+
+        Console.WriteLine($"\nOrder History for Customer {customerId}");
+        bool foundAny = false;
+        foreach (var order in custOrders)
         {
-            string[] parts = line.Split('|');
-            
-            if (long.Parse(parts[1]) == customerId)
+            Console.WriteLine($"\nOrder ID: {order.Id}");
+            Console.WriteLine($"Date: {order.OrderDate}");
+            Console.WriteLine($"Status: {order.Status}");
+            Console.WriteLine("Items:");
+            foreach (var item in order.OrderItems)
             {
-                found = true;
-                Console.WriteLine("=== Order Information of a Customer ===");
-                Console.WriteLine($"Order ID:       {parts[0]}");
-                Console.WriteLine($"Customer ID:    {parts[1]}");
-                Console.WriteLine($"Date:           {parts[2]}");
-                Console.WriteLine($"Items:          {parts[7]}");
-                Console.WriteLine($"Total:          {parts[4]}");
-                Console.WriteLine($"Status:         {parts[6]}");
-                Console.WriteLine();
+                var prod = products.FirstOrDefault(p => p.Id == item.ProductId);
+                string name = prod?.Name ?? $"Product {item.ProductId}";
+                Console.WriteLine($" - {name} x{item.Quantity}  = {item.Amount}");
             }
+
+            Console.WriteLine($"Total Amount: {order.TotalAmount}");
+            foundAny = true;
         }
 
-        if (!found)
+        if (!foundAny)
         {
-            Console.WriteLine("The Customer has no order history.");
+            Console.WriteLine("Customer has no order history.");
         }
     }
-    
+
 }
