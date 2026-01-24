@@ -404,7 +404,6 @@ public class OrderService
             Console.WriteLine($"Total Amount: {order.TotalAmount}");
             foundAny = true;
         }
-
         if (!foundAny)
         {
             Console.WriteLine("Customer has no order history.");

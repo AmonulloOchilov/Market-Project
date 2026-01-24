@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketProject", "MarketProject\MarketProject.csproj", "{FE7ABEF9-F5D3-463E-91F9-889421C90CCB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketProject.V5", "MarketProject.V5\MarketProject.V5.csproj", "{8AD90298-A6E9-43BF-999D-896B2E0D1D56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{FE7ABEF9-F5D3-463E-91F9-889421C90CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE7ABEF9-F5D3-463E-91F9-889421C90CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE7ABEF9-F5D3-463E-91F9-889421C90CCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AD90298-A6E9-43BF-999D-896B2E0D1D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AD90298-A6E9-43BF-999D-896B2E0D1D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AD90298-A6E9-43BF-999D-896B2E0D1D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AD90298-A6E9-43BF-999D-896B2E0D1D56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
