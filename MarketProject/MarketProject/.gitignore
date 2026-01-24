@@ -1,0 +1,11 @@
+# Build folders
+bin/
+obj/
+
+# Compiled files
+*.dll
+*.pdb
+
+# Rider / IDE files
+.idea/
+*.cache
