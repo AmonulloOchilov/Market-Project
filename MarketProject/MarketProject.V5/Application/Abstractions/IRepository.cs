@@ -1,4 +1,4 @@
-namespace MarketProject.V5.Infrastructure.Repositories;
+namespace MarketProject.V5.Application.Abstractions;
 
 public interface IRepository<T>
 {

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using MarketProject.V5.Application.Abstractions;
+
 
 namespace MarketProject.V5.Infrastructure.Repositories;
 
@@ -31,4 +33,5 @@ public class JsonRepository<T> : IRepository<T>
 
         File.WriteAllText(_filePath, json);
     }
+    
 }
