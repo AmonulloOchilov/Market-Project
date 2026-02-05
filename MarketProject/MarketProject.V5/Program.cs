@@ -3,6 +3,7 @@ using MarketProject.V5.Application.Services;
 using MarketProject.V5.Application.UseCases.Products;
 using MarketProject.V5.Domain;
 using MarketProject.V5.Infrastructure.Repositories;
+using MarketProject.V5.Menus;
 using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
@@ -19,25 +20,15 @@ services.AddSingleton<IRepository<Product>>(new JsonRepository<Product>(dataPath
 
 services.AddSingleton<AddProductUseCase>();
 services.AddSingleton<GetAllProductsUseCase>();
+services.AddSingleton<DeleteProductUseCase>();
+services.AddSingleton<UpdateProductUseCase>();
 
 var provider = services.BuildServiceProvider();
 
-var getAllProducts = provider.GetRequiredService<GetAllProductsUseCase>();
 var addProduct = provider.GetRequiredService<AddProductUseCase>();
+var getAllProducts = provider.GetRequiredService<GetAllProductsUseCase>();
+var deleteProduct = provider.GetRequiredService<DeleteProductUseCase>();
+var updateProduct = provider.GetRequiredService<UpdateProductUseCase>();
 
-addProduct.Execute(new Product
-{
-    Id = 2,
-    Name = "Banana",
-    Quantity = 8,
-    PricePerUnit = 1.2m,
-    ExpireDate = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
-    CategoryId = 1
-});
-
-var products = getAllProducts.Execute();
-
-foreach (var p in products)
-{
-    Console.WriteLine($"[UC] {p.Name} | {p.Quantity} | {p.PricePerUnit}");
-}
+ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct);
+productMenu.ShowMenu();

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 2,
+    "Name": "Apple",
+    "Quantity": 100,
+    "ExpireDate": "2026-02-20",
+    "PricePerUnit": 20,
+    "CategoryId": 2
+  },
+  {
+    "Id": 3,
+    "Name": "Banana",
+    "Quantity": 100,
+    "ExpireDate": "0001-01-01",
+    "PricePerUnit": 12.50,
+    "CategoryId": 0
+  }
+]
