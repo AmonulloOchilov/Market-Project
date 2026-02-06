@@ -30,5 +30,5 @@ var getAllProducts = provider.GetRequiredService<GetAllProductsUseCase>();
 var deleteProduct = provider.GetRequiredService<DeleteProductUseCase>();
 var updateProduct = provider.GetRequiredService<UpdateProductUseCase>();
 
-ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct);
+ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct, updateProduct, deleteProduct);
 productMenu.ShowMenu();
