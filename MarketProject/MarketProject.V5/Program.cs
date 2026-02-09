@@ -1,5 +1,7 @@
 ﻿using MarketProject.V5.Application.Abstractions;
 using MarketProject.V5.Application.Services;
+using MarketProject.V5.Application.UseCases.Customers;
+using MarketProject.V5.Application.UseCases.Orders;
 using MarketProject.V5.Application.UseCases.Products;
 using MarketProject.V5.Domain;
 using MarketProject.V5.Infrastructure.Repositories;
@@ -23,6 +25,21 @@ services.AddSingleton<GetAllProductsUseCase>();
 services.AddSingleton<DeleteProductUseCase>();
 services.AddSingleton<UpdateProductUseCase>();
 
+
+services.AddSingleton<IRepository<Customer>>(
+    new JsonRepository<Customer>(Path.Combine(projectRoot, "Data", "customers.json")));
+
+services.AddSingleton<AddCustomerUseCase>();
+services.AddSingleton<GetAllCustomersUseCase>();
+services.AddSingleton<UpdateCustomerUseCase>();
+services.AddSingleton<DeleteCustomerUseCase>();
+
+
+services.AddSingleton<IRepository<Order>>(
+    new JsonRepository<Order>(Path.Combine(projectRoot, "Data", "orders.json")));
+
+services.AddSingleton<AddOrderUseCase>();
+
 var provider = services.BuildServiceProvider();
 
 var addProduct = provider.GetRequiredService<AddProductUseCase>();
@@ -30,5 +47,14 @@ var getAllProducts = provider.GetRequiredService<GetAllProductsUseCase>();
 var deleteProduct = provider.GetRequiredService<DeleteProductUseCase>();
 var updateProduct = provider.GetRequiredService<UpdateProductUseCase>();
 
-ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct, updateProduct, deleteProduct);
+
+var addCustomer = provider.GetRequiredService<AddCustomerUseCase>();
+var getAllCustomers = provider.GetRequiredService<GetAllCustomersUseCase>();
+var updateCustomer = provider.GetRequiredService<UpdateCustomerUseCase>();
+var deleteCustomer = provider.GetRequiredService<DeleteCustomerUseCase>();
+
+var addOrder = provider.GetRequiredService<AddOrderUseCase>();
+
+ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct, updateProduct, deleteProduct, addCustomer,
+    getAllCustomers, updateCustomer, deleteCustomer, addOrder);
 productMenu.ShowMenu();

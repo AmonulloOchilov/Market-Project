@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "Id": 1,
+    "Name": "Apple",
+    "Quantity": 100,
+    "ExpireDate": "2026-12-12",
+    "PricePerUnit": 2.5,
+    "CategoryId": 1
+  }
+]

@@ -5,21 +5,5 @@ public class Order
     public int Id { get; set; }
     public int CustomerId { get; set; }
     public DateTime OrderDate { get; set; }
-    public string Status { get; set; } = "Pending";
-    public List<OrderItem> OrderItems { get; set; } // O -> OI
-    
-    public Order() 
-    { 
-        OrderItems = new List<OrderItem>(); //Like OrderItems are never null
-    }
-    public decimal TotalAmount //Total cost of the specific order
-    {
-        get => OrderItems.Sum(item => item.Amount);
-    }
-    public decimal Payment { get; set; }
-
-    public decimal Change
-    {
-        get => Payment - TotalAmount;
-    }
+    public List<OrderItem> Items { get; set; } = new();
 }
