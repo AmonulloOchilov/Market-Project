@@ -39,6 +39,9 @@ services.AddSingleton<IRepository<Order>>(
     new JsonRepository<Order>(Path.Combine(projectRoot, "Data", "orders.json")));
 
 services.AddSingleton<AddOrderUseCase>();
+services.AddSingleton<AddItemToOrderUseCase>();
+services.AddSingleton<GetAllOrdersUseCase>();
+services.AddSingleton<GetOrderDetailsUseCase>();
 
 var provider = services.BuildServiceProvider();
 
@@ -54,7 +57,10 @@ var updateCustomer = provider.GetRequiredService<UpdateCustomerUseCase>();
 var deleteCustomer = provider.GetRequiredService<DeleteCustomerUseCase>();
 
 var addOrder = provider.GetRequiredService<AddOrderUseCase>();
+var addItems = provider.GetRequiredService<AddItemToOrderUseCase>();
+var getAllOrders = provider.GetRequiredService<GetAllOrdersUseCase>();
+var getOrderDetails = provider.GetRequiredService<GetOrderDetailsUseCase>();
 
 ProductMenu productMenu = new ProductMenu(getAllProducts, addProduct, updateProduct, deleteProduct, addCustomer,
-    getAllCustomers, updateCustomer, deleteCustomer, addOrder);
+    getAllCustomers, updateCustomer, deleteCustomer, addOrder, addItems, getAllOrders, getOrderDetails);
 productMenu.ShowMenu();

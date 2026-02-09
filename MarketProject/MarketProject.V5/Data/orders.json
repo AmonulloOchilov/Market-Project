@@ -1,0 +1,111 @@
+[
+  {
+    "Id": 1,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T21:31:53.310779Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 20,
+        "Amount": 50.0
+      }
+    ],
+    "TotalAmount": 0,
+    "PaymentAmount": 0,
+    "Change": 0
+  },
+  {
+    "Id": 2,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T22:26:16.066437Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 20,
+        "Amount": 50.0
+      }
+    ],
+    "TotalAmount": 0,
+    "PaymentAmount": 0,
+    "Change": 0
+  },
+  {
+    "Id": 3,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T22:42:00.244476Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 20,
+        "Amount": 50.0
+      },
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 20,
+        "Amount": 50.0
+      }
+    ],
+    "TotalAmount": 0,
+    "PaymentAmount": 0,
+    "Change": 0
+  },
+  {
+    "Id": 4,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T22:44:59.216986Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 10,
+        "Amount": 25.0
+      }
+    ],
+    "TotalAmount": 0,
+    "PaymentAmount": 0,
+    "Change": 0
+  },
+  {
+    "Id": 5,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T22:50:40.246967Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 2,
+        "Amount": 5.0
+      }
+    ],
+    "TotalAmount": 5.0,
+    "PaymentAmount": 10,
+    "Change": 5.0
+  },
+  {
+    "Id": 6,
+    "CustomerId": 1,
+    "OrderDate": "2026-02-09T22:52:14.36057Z",
+    "Items": [
+      {
+        "ProductId": 1,
+        "ProductName": "Apple",
+        "Price": 2.5,
+        "Quantity": 1,
+        "Amount": 2.5
+      }
+    ],
+    "TotalAmount": 2.5,
+    "PaymentAmount": 5,
+    "Change": 2.5
+  }
+]
